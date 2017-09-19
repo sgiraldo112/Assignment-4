@@ -6,6 +6,7 @@ var path = require('path'),
     config = require('./config'),
     listingsRouter = require('../routes/listings.server.routes'), 
     getCoordinates = require('../controllers/coordinates.server.controller.js');
+	getListings = require('../controllers/coordinates.server.controller.js')
 
 module.exports.init = function() {
   //connect to database
@@ -20,18 +21,21 @@ module.exports.init = function() {
   //body parsing middleware 
   app.use(bodyParser.json());
 
+   /* serve static files */
+  app.use(express.static(path.join(__dirname , '../../client/')));
+
+  /* use the listings router for requests to the api */
+  app.use('/api/listings/', listingsRouter);
+
+  /* go to homepage for all routes not specified */
+  app.use('*', function(req, res){
+    res.redirect('/');
+  });
+
   /* server wrapper around Google Maps API to get latitude + longitude coordinates from address */
   app.post('/api/coordinates', getCoordinates, function(req, res) {
     res.send(req.results);
   });
-
-  /* serve static files */
-  
-
-  /* use the listings router for requests to the api */
-
-
-  /* go to homepage for all routes not specified */ 
 
   return app;
 };  
